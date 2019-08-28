@@ -1,0 +1,100 @@
+logging:
+  level:
+    vn.tcx.app: DEBUG
+
+server:
+  port: 8080
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
+    min-response-size: 1024
+  servlet:
+    session:
+      cookie:
+        http-only: true
+
+spring:
+  application:
+    name: app-name
+  jmx:
+    default-domain: app-jmx
+  mvc:
+    favicon:
+      enabled: false
+  main:
+    allow-bean-definition-overriding: true
+  jackson:
+    serialization:
+       indent-output: true
+  autoconfigure:
+    exclude: 
+      - org.springframework.boot.actuate.autoconfigure.metrics.jdbc.DataSourcePoolMetricsAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost/app?useLegacyDatetimeCode=false&serverTimezone=UTC
+    username: root
+    password: 
+    hikari:
+      poolName: app-pool
+      auto-commit: false
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: deferred
+  jpa:
+    open-in-view: false
+    show-sql: true
+    properties:
+      hibernate.jdbc.time_zone: UTC
+      hibernate.id.new_generator_mappings: true
+      hibernate.connection.provider_disables_autocommit: true
+      hibernate.cache.use_second_level_cache: true
+      hibernate.cache.use_query_cache: false
+      hibernate.generate_statistics: false
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy
+        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+  mail:
+    host: localhost
+    port: 25
+    username:
+    password:
+  thymeleaf:
+    cache: true
+    
+app.properties:
+  cache: # Cache configuration
+    ehcache: # Ehcache configuration
+      time-to-live-seconds: 3600 # By default objects stay 1 hour in the cache
+      max-entries: 100 # Number of objects in each cache entry
+  security:
+    authentication:
+      jwt:
+        # This token must be encoded using Base64 and be at least 256 bits long (you can type `openssl rand -base64 64` on your command line to generate a 512 bits one)
+        base64-secret: weNFYEEwaR2tR7cIImha/T4cEjk2LqSJ+1tBzqFgGOx5QkL1X5I8kHrJp4qICko7ignTLdklDcarFTXL/QVbsg==
+        # Token is valid 24 hours
+        token-validity-in-seconds: 86400
+        token-validity-in-seconds-for-remember-me: 2592000
+  cors:
+    allowed-origins: '*'
+    allowed-methods: '*'
+    allowed-headers: '*'
+    exposed-headers: 'Authorization'
+    allow-credentials: true
+    max-age: 1800
+  swagger:
+    default-include-pattern: /api/.*
+    title: jhipster API
+    description: jhipster API documentation
+    version: 0.0.1
+  mail:
+    base-url: http://localhost # Modify according to your server's URL
