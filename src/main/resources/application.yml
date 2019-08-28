@@ -33,7 +33,7 @@ spring:
       - org.springframework.boot.autoconfigure.data.elasticsearch.ElasticsearchDataAutoConfiguration
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost/app?useLegacyDatetimeCode=false&serverTimezone=UTC
+    url: jdbc:mariadb://localhost/app?useLegacyDatetimeCode=false&serverTimezone=UTC&createDatabaseIfNotExist=true
     username: root
     password: 
     hikari:
