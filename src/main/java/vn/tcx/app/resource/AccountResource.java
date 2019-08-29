@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import vn.tcx.app.config.ApplicationProperties;
 import vn.tcx.app.dto.PasswordChangeDTO;
 import vn.tcx.app.dto.UserDTO;
 import vn.tcx.app.entity.User;
@@ -47,15 +48,17 @@ public class AccountResource {
 
     private final Logger log = LoggerFactory.getLogger(AccountResource.class);
 
+    private final ApplicationProperties properties;
+    
     private final UserRepository userRepository;
 
     private final UserService userService;
 
     private final MailService mailService;
 
-    public AccountResource(UserRepository userRepository, UserService userService, MailService mailService) {
-
-        this.userRepository = userRepository;
+    public AccountResource(ApplicationProperties properties, UserRepository userRepository, UserService userService, MailService mailService) {
+        this.properties = properties;
+    	this.userRepository = userRepository;
         this.userService = userService;
         this.mailService = mailService;
     }
@@ -75,7 +78,9 @@ public class AccountResource {
             throw new InvalidPasswordException();
         }
         User user = userService.registerUser(managedUserVM, managedUserVM.getPassword());
-        mailService.sendActivationEmail(user);
+        if(properties.isRegisterUserNeedActivate()) {
+        	mailService.sendActivationEmail(user);
+        }
     }
 
     /**

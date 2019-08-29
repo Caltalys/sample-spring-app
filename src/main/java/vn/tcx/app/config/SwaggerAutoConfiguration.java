@@ -24,6 +24,7 @@ import static springfox.documentation.builders.PathSelectors.regex;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -49,10 +50,18 @@ import org.springframework.util.StopWatch;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.DispatcherServlet;
 
+import com.google.common.collect.Lists;
+
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.schema.AlternateTypeRule;
 import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.ApiKey;
+import springfox.documentation.service.AuthorizationScope;
+import springfox.documentation.service.SecurityReference;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
@@ -104,7 +113,9 @@ public class SwaggerAutoConfiguration {
         StopWatch watch = new StopWatch();
         watch.start();
 
-        Docket docket = createDocket();
+        Docket docket = createDocket()
+        		.securitySchemes(Lists.newArrayList(apiKey()))
+                .securityContexts(Collections.singletonList(securityContext()));
 
         // Apply all SwaggerCustomizers orderly.
         swaggerCustomizers.forEach(customizer -> customizer.customize(docket));
@@ -136,7 +147,7 @@ public class SwaggerAutoConfiguration {
      * @return the Swagger Springfox configuration
      */
     @Bean
-    @ConditionalOnClass(name = "org.springframework.boot.actuate.autoconfigure.web.server.ManagementServerProperties")
+    //@ConditionalOnClass(name = "org.springframework.boot.actuate.autoconfigure.web.server.ManagementServerProperties")
     @ConditionalOnProperty("management.endpoints.web.base-path")
     @ConditionalOnExpression("'${management.endpoints.web.base-path}'.length() > 0")
     @ConditionalOnMissingBean(name = "swaggerSpringfoxManagementDocket")
@@ -155,6 +166,8 @@ public class SwaggerAutoConfiguration {
         );
 
         return createDocket()
+        	.securitySchemes(Lists.newArrayList(apiKey()))
+            .securityContexts(Collections.singletonList(securityContext()))
             .apiInfo(apiInfo)
             .useDefaultResponseMessages(properties.isUseDefaultResponseMessages())
             .groupName(MANAGEMENT_GROUP_NAME)
@@ -163,12 +176,27 @@ public class SwaggerAutoConfiguration {
             .forCodeGeneration(true)
             .directModelSubstitute(ByteBuffer.class, String.class)
             .genericModelSubstitutes(ResponseEntity.class)
-            .ignoredParameterTypes(Pageable.class)
+            //.ignoredParameterTypes(Pageable.class)
             .select()
-            .paths(regex(managementContextPath + ".*"))
+            .apis(RequestHandlerSelectors.basePackage("vn.tcx.app.resource"))
+            .paths(PathSelectors.any())
             .build();
     }
 
+    private SecurityContext securityContext() {
+        return SecurityContext.builder().securityReferences(defaultAuth()).forPaths(PathSelectors.regex("/.*")).build();
+    }
+
+    private List<SecurityReference> defaultAuth() {
+        final AuthorizationScope authorizationScope = new AuthorizationScope("global", "accessEverything");
+        final AuthorizationScope[] authorizationScopes = new AuthorizationScope[]{authorizationScope};
+        return Collections.singletonList(new SecurityReference("Bearer", authorizationScopes));
+    }
+
+    private ApiKey apiKey() {
+        return new ApiKey("Bearer", "Authorization", "header");
+    }
+    
     protected Docket createDocket() {
         return new Docket(DocumentationType.SWAGGER_2);
     }

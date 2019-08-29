@@ -16,6 +16,7 @@ import lombok.Setter;
 @Getter
 public class ApplicationProperties {
 
+	private boolean registerUserNeedActivate = false;
 	private final Cache cache = new Cache();
 	private final Swagger swagger = new Swagger();
 	private final Security security = new Security();

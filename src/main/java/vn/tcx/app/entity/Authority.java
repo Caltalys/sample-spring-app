@@ -1,19 +1,22 @@
 package vn.tcx.app.entity;
 
+import java.io.Serializable;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Column;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.io.Serializable;
-import java.util.Objects;
 
 /**
  * An authority (a security role) used by Spring Security.
@@ -21,9 +24,10 @@ import java.util.Objects;
 @Entity
 @Table(name = "vai_tro")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@EqualsAndHashCode(callSuper = false)
 @Getter
 @Setter
-public class Authority implements Serializable {
+public class Authority extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -36,22 +40,6 @@ public class Authority implements Serializable {
     @Size(max = 500)
     @Column(length = 500, name="mo_ta")
     private String moTa;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Authority)) {
-            return false;
-        }
-        return Objects.equals(tenVaiTro, ((Authority) o).tenVaiTro);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(tenVaiTro);
-    }
 
     @Override
     public String toString() {

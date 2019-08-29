@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import vn.tcx.app.config.ApplicationProperties;
 import vn.tcx.app.constant.Constants;
 import vn.tcx.app.dto.UserDTO;
 import vn.tcx.app.entity.User;
@@ -41,6 +42,8 @@ public class UserService {
 
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
+    private final ApplicationProperties properties;
+    
     private final UserRepository userRepository;
 
     private final PasswordEncoder passwordEncoder;
@@ -49,8 +52,9 @@ public class UserService {
 
     private final CacheManager cacheManager;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository, CacheManager cacheManager) {
-        this.userRepository = userRepository;
+    public UserService(ApplicationProperties properties, UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository, CacheManager cacheManager) {
+        this.properties = properties;
+    	this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
         this.cacheManager = cacheManager;
@@ -117,7 +121,11 @@ public class UserService {
         newUser.setImageUrl(userDTO.getImageUrl());
         newUser.setLangKey(userDTO.getLangKey());
         // new user is not active
-        newUser.setActivated(false);
+        if(properties.isRegisterUserNeedActivate()) {
+        	newUser.setActivated(false);
+        } else {
+        	newUser.setActivated(true);
+        }
         // new user gets registration key
         newUser.setActivationKey(RandomUtil.generateActivationKey());
         Set<Authority> authorities = new HashSet<>();
