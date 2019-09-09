@@ -41,7 +41,10 @@ import vn.tcx.app.service.UserService;
 public class AccountResource {
 
     private static class AccountResourceException extends RuntimeException {
-        private AccountResourceException(String message) {
+
+		private static final long serialVersionUID = -78083821795860723L;
+
+		private AccountResourceException(String message) {
             super(message);
         }
     }

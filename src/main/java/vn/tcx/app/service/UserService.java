@@ -23,11 +23,13 @@ import vn.tcx.app.config.ApplicationProperties;
 import vn.tcx.app.constant.Constants;
 import vn.tcx.app.dto.UserDTO;
 import vn.tcx.app.entity.Authority;
+import vn.tcx.app.entity.Permission;
 import vn.tcx.app.entity.User;
 import vn.tcx.app.errors.EmailAlreadyUsedException;
 import vn.tcx.app.errors.InvalidPasswordException;
 import vn.tcx.app.errors.LoginAlreadyUsedException;
 import vn.tcx.app.repository.AuthorityRepository;
+import vn.tcx.app.repository.PermissionRepository;
 import vn.tcx.app.repository.UserRepository;
 import vn.tcx.app.security.AuthoritiesConstants;
 import vn.tcx.app.security.SecurityUtils;
@@ -49,14 +51,19 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     private final AuthorityRepository authorityRepository;
-
+    
+    private final PermissionRepository permissionRepository; 
+    
     private final CacheManager cacheManager;
 
-    public UserService(ApplicationProperties properties, UserRepository userRepository, PasswordEncoder passwordEncoder, AuthorityRepository authorityRepository, CacheManager cacheManager) {
+    public UserService(ApplicationProperties properties, UserRepository userRepository, 
+    		AuthorityRepository authorityRepository, PermissionRepository permissionRepository,
+    		PasswordEncoder passwordEncoder, CacheManager cacheManager) {
         this.properties = properties;
     	this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.authorityRepository = authorityRepository;
+        this.permissionRepository = permissionRepository;
         this.cacheManager = cacheManager;
     }
 
@@ -120,16 +127,13 @@ public class UserService {
         newUser.setEmail(userDTO.getEmail().toLowerCase());
         newUser.setImageUrl(userDTO.getImageUrl());
         newUser.setLangKey(userDTO.getLangKey());
-        // new user is not active
-        if(properties.isRegisterUserNeedActivate()) {
-        	newUser.setActivated(false);
-        } else {
-        	newUser.setActivated(true);
-        }
+        // new user need active or not
+        newUser.setActivated(!properties.isRegisterUserNeedActivate());
+        
         // new user gets registration key
-        newUser.setActivationKey(RandomUtil.generateActivationKey());
+        newUser.setActivationKey(properties.isRegisterUserNeedActivate() ? RandomUtil.generateActivationKey() : null);
         Set<Authority> authorities = new HashSet<>();
-        authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
+        authorityRepository.findByMaVaiTro(AuthoritiesConstants.USER, false).ifPresent(authorities::add);
         newUser.setAuthorities(authorities);
         userRepository.save(newUser);
         this.clearUserCaches(newUser);
@@ -166,7 +170,7 @@ public class UserService {
         user.setActivated(true);
         if (userDTO.getAuthorities() != null) {
             Set<Authority> authorities = userDTO.getAuthorities().stream()
-                .map(authorityRepository::findById)
+                .map(role -> authorityRepository.findByMaVaiTro(role, false))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet());
@@ -224,7 +228,7 @@ public class UserService {
                 Set<Authority> managedAuthorities = user.getAuthorities();
                 managedAuthorities.clear();
                 userDTO.getAuthorities().stream()
-                    .map(authorityRepository::findById)
+                	.map(role -> authorityRepository.findByMaVaiTro(role, false))
                     .filter(Optional::isPresent)
                     .map(Optional::get)
                     .forEach(managedAuthorities::add);
@@ -301,7 +305,6 @@ public class UserService {
     public List<String> getAuthorities() {
         return authorityRepository.findAll().stream().map(Authority::getTenVaiTro).collect(Collectors.toList());
     }
-
 
     private void clearUserCaches(User user) {
         Objects.requireNonNull(cacheManager.getCache(UserRepository.USERS_BY_LOGIN_CACHE)).evict(user.getLogin());

@@ -2,6 +2,7 @@ package vn.tcx.app.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -50,4 +51,7 @@ public abstract class AbstractAuditingEntity implements Serializable {
     @Column(name = "last_modified_date")
     @JsonIgnore
     private Instant lastModifiedDate = Instant.now();
+    
+    @Column(name="da_xoa")
+    private boolean daXoa = false;
 }

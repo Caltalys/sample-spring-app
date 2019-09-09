@@ -41,8 +41,12 @@ public class CacheConfiguration {
             createCache(cm, vn.tcx.app.repository.UserRepository.USERS_BY_LOGIN_CACHE);
             createCache(cm, vn.tcx.app.repository.UserRepository.USERS_BY_EMAIL_CACHE);
             createCache(cm, vn.tcx.app.entity.User.class.getName());
-            createCache(cm, vn.tcx.app.entity.Authority.class.getName());
             createCache(cm, vn.tcx.app.entity.User.class.getName() + ".authorities");
+            createCache(cm, vn.tcx.app.repository.AuthorityRepository.AUTHORITY_BY_ID_CACHE);
+            createCache(cm, vn.tcx.app.repository.AuthorityRepository.AUTHORITY_BY_MA_CACHE);
+            createCache(cm, vn.tcx.app.entity.Authority.class.getName());
+            createCache(cm, vn.tcx.app.entity.Authority.class.getName() + ".permissions");
+            createCache(cm, vn.tcx.app.entity.Permission.class.getName());
             // jhipster-needle-ehcache-add-entry
         };
     }

@@ -64,9 +64,8 @@ public class UserMapper {
 
         if(authoritiesAsString != null){
             authorities = authoritiesAsString.stream().map(string -> {
-                Authority auth = new Authority();
-                auth.setTenVaiTro(string);
-                return auth;
+                return Authority.builder()
+                		.maVaiTro(string).build();
             }).collect(Collectors.toSet());
         }
 

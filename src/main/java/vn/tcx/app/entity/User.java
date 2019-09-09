@@ -98,7 +98,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @JoinTable(
         name = "taikhoan_vaitro",
         joinColumns = {@JoinColumn(name = "taikhoan_id", referencedColumnName = "id")},
-        inverseJoinColumns = {@JoinColumn(name = "ten_vai_tro", referencedColumnName = "ten_vai_tro")}
+        inverseJoinColumns = {@JoinColumn(name = "vaitro_id", referencedColumnName = "id")}
         )
     @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
     @BatchSize(size = 20)

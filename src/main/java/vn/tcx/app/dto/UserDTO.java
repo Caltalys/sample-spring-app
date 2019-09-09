@@ -47,14 +47,6 @@ public class UserDTO {
     @Size(min = 2, max = 10)
     private String langKey;
 
-    private String createdBy;
-
-    private Instant createdDate;
-
-    private String lastModifiedBy;
-
-    private Instant lastModifiedDate;
-
     private Set<String> authorities;
 
     public UserDTO() {
@@ -70,10 +62,6 @@ public class UserDTO {
         this.activated = user.getActivated();
         this.imageUrl = user.getImageUrl();
         this.langKey = user.getLangKey();
-        this.createdBy = user.getCreatedBy();
-        this.createdDate = user.getCreatedDate();
-        this.lastModifiedBy = user.getLastModifiedBy();
-        this.lastModifiedDate = user.getLastModifiedDate();
         this.authorities = user.getAuthorities().stream()
             .map(Authority::getTenVaiTro)
             .collect(Collectors.toSet());
@@ -89,10 +77,6 @@ public class UserDTO {
             ", imageUrl='" + imageUrl + '\'' +
             ", activated=" + activated +
             ", langKey='" + langKey + '\'' +
-            ", createdBy=" + createdBy +
-            ", createdDate=" + createdDate +
-            ", lastModifiedBy='" + lastModifiedBy + '\'' +
-            ", lastModifiedDate=" + lastModifiedDate +
             ", authorities=" + authorities +
             "}";
     }
